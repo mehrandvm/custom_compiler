@@ -52,8 +52,8 @@ file = ''
 st = ''
 temp = 0
 quadNo = -1
-varList = []   #vars in use
-quadList = []  #each element will be in the form of [ quadNo , op , x , y , z ]
+varList = []
+quadList = []
 symTable = []
 final = []
 retCheck = ()
@@ -666,8 +666,6 @@ def endOfProgram():
     global line
     return Token('end_tk','.',line)
 
-#driver function of lexical analysis that determines the token type.
-#Depending on the incoming symbol we follow the corresponding transition.
 def tokenResolver():
     global char , line
 
@@ -709,7 +707,7 @@ def lex():
         varList.append(tempToken.tokenString)
     return [ str(tempToken.tokenType) , str(tempToken.tokenString) ]
 
-###########################syntax analysis############################
+#######################################################
 
 def block(block):
     global retCheck, line
@@ -1295,9 +1293,6 @@ def program():
     getNext()
     token = lex()  # initialize token for the first time
 
-    final.append('Lbegin: \n')
-    final.append('  j Lmain\n')
-
     if token[0] == 'program_tk':
         token = lex()
         if token[0] == 'id_tk':
@@ -1306,11 +1301,9 @@ def program():
             token = lex()
             block((programName, True, 'main'))
             if token[0] == 'end_tk':
-                print(symTable)
                 print(varList)
-                print(quadList)
-                print(final)
                 print('Program lexed succesfully. ')
+
             else:
                 print('program name was expected')
                 exit(1)
