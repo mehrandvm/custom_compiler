@@ -26,8 +26,8 @@ relOper = {
 branch =  {
             '<': 'blt', '>': 'bgt', '=': 'beq',
             '<=': 'ble', '>=': 'bge', '<>': 'bne'
-          } 
-            
+          }
+
 assign = {':=': 'assign_tk'}
 
 delim = {';': 'semcol_tk', ',': 'comma_tk'}
@@ -497,18 +497,18 @@ def printScope():  #print current sym table
     st.write('scope fLength: %s\n' % symTable[-1].totalOffset )
     st.write('scope level: %s\n' % symTable[-1].nestingLevel )
     st.write('=================================================================================\n\n')
-    
+
 ###################################intermediate code helpers####################################
 
 def nextQuad():
     global quadNo
     return (quadNo + 1)
-    
+
 def genQuad(op, x, y, z):
     global quadList, quadNo
     quadNo += 1
     quadList.append([quadNo, str(op), str(x), str(y), str(z)])
-    
+
 def newTemp():
     global tempvarList, temp, symTable
     tempvar = 'T_' + str(temp)
@@ -523,13 +523,13 @@ def emptyList():
 
 def makeList(x):
     return [str(x)]
-    
+
 def merge(list1, list2):
     return list1 + list2
 
 def backpatch(quadLabels, z):
     global quadList
-    
+
     for label in quadLabels:
         quadList[int(label)][4] = str(z)
 
@@ -545,8 +545,8 @@ def getNext():
         print('program was not terminated properly')
         exit(1)
     if char == '\n':
-        line+=1    
-      
+        line+=1
+
 def potentialNumber():
     global char , line
 
@@ -570,7 +570,7 @@ def potentialNumber():
 #ignore
 def comments():
     global char, line
-    
+
     while 1:
         getNext()
         if char == '#':
@@ -591,7 +591,7 @@ def identOrKey():
             getNext()
         else:
             break
-            
+
     if len(text) > 30:
         print('error: character: %s , at line: %s ' % (text, line))
         print('a word can not be more than 30 characters')
@@ -602,7 +602,7 @@ def identOrKey():
 
     if text.isalnum():
         return Token('id_tk', text, line)
-        
+
 def addOp():
     global char , line
     temp = char
@@ -620,13 +620,13 @@ def groupSym():
     temp = char
     getNext()
     return Token( groupSymbol[temp] , temp, line)
-    
+
 def delimSym():
     global char , line
     temp = char
     getNext()
     return Token( delim[temp] , temp, line)
-    
+
 def assignOp():
     global char , line
 
@@ -636,14 +636,14 @@ def assignOp():
         exit(1)
     getNext()
     return Token('assign_tk', ':=', line)
-    
+
 def relOp():
     global char , line, groupSymbol
- 
+
     if char == '=':
         getNext()
         return Token('eq_tk', '=', line)
-    
+
     temp = char
     #sneak peek
     getNext()
@@ -661,19 +661,19 @@ def relOp():
     if not char.isalnum():
         print('error invalid character: %s , at line: %s ' % (temp+char,line))
         exit(1)
-        
+
 def endOfProgram():
     global line
     return Token('end_tk','.',line)
 
-#driver function of lexical analysis that determines the token type. 
+#driver function of lexical analysis that determines the token type.
 #Depending on the incoming symbol we follow the corresponding transition.
 def tokenResolver():
     global char , line
 
     while char.isspace():
         getNext()
-    
+
     while 1:
         #states
         if char == '#':
@@ -708,39 +708,8 @@ def lex():
     if tempToken.tokenType == 'id_tk' and not tempToken.tokenString in varList:
         varList.append(tempToken.tokenString)
     return [ str(tempToken.tokenType) , str(tempToken.tokenString) ]
-    
+
 ###########################syntax analysis############################
-
-def program():
-    global token , quadList, symTable, final
-    getNext()
-    token = lex()  #initialize token for the first time
-
-    final.append('Lbegin: \n')
-    final.append('  j Lmain\n')
-    
-    if token[0] ==  'program_tk':
-        token = lex()
-        if token[0] ==  'id_tk':
-            programName = token[1]
-            newScope(programName)
-            token = lex()
-            block((programName , True, 'main' ))
-            if token[0] == 'end_tk':
-                # genInt()
-                # genC()
-                # genAsm()
-                print('Program lexed succesfully. ')
-                print(final)
-            else:
-                print('program was not ended properly' )
-                exit(1)
-        else:
-            print('program name was expected')
-            exit(1)
-    else:
-        print('keyword: program was expcted')
-        exit(1)
 
 def block(block):
     global retCheck, line
@@ -767,10 +736,10 @@ def declarations(b):
             token = lex()
         else:
             print('error , ; was expected at line %s' % line)
-            
+
 def varlist(b): #declarations
     global token, line, symTable
-    
+
     type = 'var'
     if b:
         type = 'global'
@@ -793,7 +762,7 @@ def subprograms():
     global token, line, symTable, final, sub
 
     while token[0] == 'function_tk' or token[0] == 'procedure_tk':
-        
+
         sub = True
         type = token[1]
         token = lex()
@@ -902,7 +871,7 @@ def ifStat():
             genQuad('jump', '_', '_', '_')
             backpatch(Bfalse , nextQuad())  #now we know where to go , after the if statements in case of falsy cond , else part
             elsepart()
-            backpatch(ifList , nextQuad())  #contains the jump quad label above 
+            backpatch(ifList , nextQuad())  #contains the jump quad label above
         else:
             print('error , expected: ) at line: %s' % line)
             exit(1)
@@ -929,7 +898,7 @@ def whileStat():        # S -> while B stats
             backpatch(Btrue , nextQuad()) #if true continue to stats
             statements()
             genQuad('jump', '_', '_', Bquad)
-            backpatch(Bfalse , nextQuad())   #if falsy exit 
+            backpatch(Bfalse , nextQuad())   #if falsy exit
         else:
             print('error , expected: ) at line: %s' % line)
             exit(1)
@@ -937,7 +906,7 @@ def whileStat():        # S -> while B stats
         print('error , expected: ( at line: %s' % line)
         exit(1)
 
-def switchcaseStat():   
+def switchcaseStat():
     global token , line
 
     exit = emptyList()                            #save all exit jump outs inside each case
@@ -950,7 +919,7 @@ def switchcaseStat():
                 token = lex()
                 backpatch(Btrue, nextQuad())
                 statements()
-                exit.append(nextQuad())  
+                exit.append(nextQuad())
                 genQuad('jump', '_', '_', '_')     #truthy , jump out , default gets ignored
                 backpatch(Bfalse , nextQuad())     #next case or default
             else:
@@ -995,7 +964,7 @@ def forcaseStat():
         print('error , expected: default case at line: %s' % line)
         exit(1)
 
-def incaseStat():              
+def incaseStat():
     global token , line
 
     temp = (newTemp(), nextQuad())      #save start of current incase
@@ -1017,8 +986,8 @@ def incaseStat():
         else:
             print('error , expected: ( at line: %s' % line)
             exit(1)
-    genQuad('=' , '1' , temp[0] , temp[1] )  #if temp[0] == 1 jump up 
-    
+    genQuad('=' , '1' , temp[0] , temp[1] )  #if temp[0] == 1 jump up
+
 def returnStat():
     global token , line
 
@@ -1026,7 +995,7 @@ def returnStat():
         token = lex()
         genQuad('retv' , expression() , '_' , '_') #return the very last result of the expression
         if token[0] ==  'rpar_tk':
-            token = lex()  
+            token = lex()
         else:
             print('error , expected ) at line %s' % line)
             exit(1)
@@ -1096,18 +1065,18 @@ def inputStat():
         print('error , expected ( at line %s' % line)
         exit(1)
 
-def condition():                         #B -> Q1( or Q2 )* 
+def condition():                         #B -> Q1( or Q2 )*
     global token
 
-    (Btrue , Bfalse) = boolterm()        
+    (Btrue , Bfalse) = boolterm()
     while token[0] == 'or_tk':
-        backpatch(Bfalse, nextQuad())     #we do the opposite of and ,       
+        backpatch(Bfalse, nextQuad())     #we do the opposite of and ,
         token = lex()                     #if left evaluation false , on to the next
         (Q2true, Q2false) = boolterm()
         Btrue = merge(Btrue, Q2true)
         Bfalse = Q2false
     return (Btrue , Bfalse)               #need to return in case of recursion
-        
+
 def boolterm():                           #Q -> R1( and R2 )*
     global token
 
@@ -1137,16 +1106,16 @@ def boolfactor():
         else:
             print('error , expected [ at line %s' % line)
             exit(1)
-    elif token[0] ==  'lbracket_tk':  
-        token = lex()            
-        (Btrue , Bfalse) = condition()     #nothing interesting here :(     
+    elif token[0] ==  'lbracket_tk':
+        token = lex()
+        (Btrue , Bfalse) = condition()     #nothing interesting here :(
         if token[0] ==  'rbracket_tk':
             token = lex()
             return (Btrue , Bfalse)
         else:
             print('error , expected ] at line %s' % line)
             exit(1)
-    else:               
+    else:
         left = expression()                 #  R -> left relop right  , all conditions will end up here eventually
         if token[0] in relOper.values():
             op = token[1]
@@ -1170,15 +1139,15 @@ def expression():                #exp -> termLeft | termLeft addOp termRight add
         genQuad('-', 0, left, temp)
         left = temp
 
-    while token[0] in addOperator.values(): 
+    while token[0] in addOperator.values():
         op = token[1]
         token = lex()
-        right = term()          
+        right = term()
         temp = newTemp()
         genQuad(op, left, right, temp)
         left = temp
-    return left 
-                  #END RESULT wich holds the value of the expression 
+    return left
+                  #END RESULT wich holds the value of the expression
                   # ex for p := x+y  we need to return T_i where T_i = x+y then p := T_i
 def term():
     global token
@@ -1227,12 +1196,12 @@ def actualparlist():
 
     param = actualparitem()
     parlist.append(param)
-    
+
     while token[0] == 'comma_tk': #we should not generate the quads here directly
-        token = lex()             #this should happen when parlist returns 
+        token = lex()             #this should happen when parlist returns
         param = actualparitem()
         parlist.append(param)
-    
+
     if parlist[0] is None:
         parlist = []
     validatePars([ p[0] for p in parlist ])
@@ -1320,6 +1289,38 @@ def statement():
         printStat()
 
 ##########################main#################################
+
+def program():
+    global token, quadList, symTable, final
+    getNext()
+    token = lex()  # initialize token for the first time
+
+    final.append('Lbegin: \n')
+    final.append('  j Lmain\n')
+
+    if token[0] == 'program_tk':
+        token = lex()
+        if token[0] == 'id_tk':
+            programName = token[1]
+            newScope(programName)
+            token = lex()
+            block((programName, True, 'main'))
+            if token[0] == 'end_tk':
+                print(symTable)
+                print(varList)
+                print(quadList)
+                print(final)
+                print('Program lexed succesfully. ')
+            else:
+                print('program name was expected')
+                exit(1)
+        else:
+            print('program name was expected')
+            exit(1)
+    else:
+        print('program name was expected')
+        exit(1)
+
 
 try:
     file = open(sys.argv[1], 'r')
