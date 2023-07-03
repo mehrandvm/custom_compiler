@@ -1,2 +1,7 @@
-symtable.txt
 .idea/
+*.class
+out/
+gen/
+*.iml
+build/
+classes/

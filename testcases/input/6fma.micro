@@ -1,0 +1,50 @@
+PROGRAM factorial
+BEGIN
+	STRING intro := "You will be asked for three float numbers\n";
+	STRING first := "Please enter the first float number: ";
+	STRING second := "Please enter the second float number: ";
+	STRING third := "Please enter the third float number: ";
+	STRING eol := "\n";
+     STRING star := "*";
+	STRING plus := "+";
+	STRING equal := "=";
+	
+	FUNCTION FLOAT add (FLOAT a, FLOAT b)
+	BEGIN
+	  FLOAT result;
+		result := a+b;
+		RETURN result;
+	END
+
+	FUNCTION FLOAT multiply (FLOAT a, FLOAT b)
+	BEGIN
+	  FLOAT result;
+		result := a*b;
+		RETURN result;
+	END
+
+	FUNCTION FLOAT addTest (FLOAT a, FLOAT b)
+	BEGIN
+		RETURN add(a+1-1, multiply(0.5, 2*b));
+	END
+	
+	FUNCTION INT main ()
+	BEGIN
+		FLOAT a,b,c,d;
+		FLOAT addresult,multiplyresult;
+		WRITE(intro,first);
+		READ(a);
+		WRITE(second);
+		READ(b);
+		WRITE(third);
+		READ(c);
+
+		d := multiply(a,b) + 2*addTest(a, b)*0.5;
+		WRITE(d, eol);
+
+		d := 2.0;
+		addresult := add(multiply(a,b), multiply(c, add(0, multiply(0.5, d) + add(0,2) -2)));
+		WRITE(a,star,b,plus,c,equal,addresult,eol);
+		RETURN 0;
+	END
+END
